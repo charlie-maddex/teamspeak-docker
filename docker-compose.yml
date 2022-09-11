@@ -1,0 +1,42 @@
+version: "3.8"
+
+networks:
+  internal:
+    external: true
+
+services:
+  teamspeak:
+    container_name: personal-ts3
+    image: teamspeak
+    restart: unless-stopped
+    networks:
+      - internal
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    depends_on:
+      - teamspeakdb
+    volumes:
+      - ./volumes/teamspeak:/var/ts3server/
+    environment:
+      TS3SERVER_DB_PLUGIN: ts3db_mariadb
+      TS3SERVER_DB_SQLCREATEPATH: create_mariadb
+      TS3SERVER_DB_HOST: teamspeakdb
+      TS3SERVER_DB_USER: root
+      TS3SERVER_DB_PASSWORD: change-password-here
+      TS3SERVER_DB_NAME: teamspeak
+      TS3SERVER_DB_WAITUNTILREADY: 30
+      TS3SERVER_LICENSE: accept
+
+  teamspeakdb:
+    container_name: personal-ts3db
+    image: mariadb
+    restart: unless-stopped
+    networks:
+      - internal
+    environment:
+      MYSQL_DATABASE: teamspeak
+      MYSQL_ROOT_PASSWORD: change-password-here
+    volumes:
+      - ./volumes/teamspeakdb:/var/lib/mysql
